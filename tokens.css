@@ -1,0 +1,56 @@
+/* Hallmark tokens — Learnivia landing page (custom, brand-locked theme)
+ * Portable reference copy of the tokens applied via `.landing-theme` in app/globals.css.
+ * Source: docs/learnivia-brief.pdf palette section. Not imported by the build.
+ */
+
+:root {
+  --color-paper: oklch(98.5% 0.0113 71.9);   /* Warm Cream  #FFF9F2 */
+  --color-paper-2: oklch(94.3% 0.026 239.1); /* Soft Sky Blue #DDEFFC */
+  --color-paper-3: oklch(99.3% 0.006 72);
+  --color-ink: oklch(31% 0.059 250.3);       /* Deep Navy #17324D */
+  --color-ink-2: oklch(46% 0.05 250.3);
+  --color-muted: oklch(54% 0.035 245);
+  --color-rule: oklch(88% 0.014 90);
+  --color-rule-2: oklch(91.5% 0.012 90);
+  --color-accent: oklch(66.4% 0.097 192.4);  /* Fresh Teal #39A6A3 */
+  --color-accent-2: oklch(85.3% 0.1343 87.5);/* Soft Gold #F4C95D */
+  --color-accent-ink: var(--color-ink);
+  --color-focus: var(--color-ink);
+
+  --font-display: "Baloo 2", ui-rounded, system-ui, sans-serif;
+  --font-body: "Plus Jakarta Sans", system-ui, sans-serif;
+
+  --space-3xs: 0.125rem;
+  --space-2xs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2.5rem;
+  --space-2xl: 4rem;
+  --space-3xl: 6rem;
+  --space-4xl: 9rem;
+
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-md: 1.1875rem;
+  --text-lg: 1.5rem;
+  --text-xl: 2rem;
+  --text-2xl: 2.5rem;
+  --text-display: clamp(2.75rem, 5vw + 1rem, 4.5rem);
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-micro: 120ms;
+  --dur-short: 220ms;
+  --dur-long: 420ms;
+
+  --radius-card: 12px;
+  --radius-pill: 999px;
+  --shadow-soft: 0 8px 24px -10px oklch(31% 0.059 250 / 0.16);
+}
+
+/* Axes: light / rounded-sans / chromatic-teal · Macrostructure: Split Studio
+ * Nav: N1b SaaS three-section · Footer: Ft5 Statement · Genre: playful
+ */

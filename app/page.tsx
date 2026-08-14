@@ -1,69 +1,190 @@
-import Image from "next/image";
+import Link from "next/link"
+import Image from "next/image"
+import { Baloo_2, Plus_Jakarta_Sans } from "next/font/google"
+import { ShieldCheck, HandHeart, Globe2 } from "lucide-react"
+import { SiteNav } from "@/components/site-nav"
 
-export default function Home() {
+const baloo = Baloo_2({
+  subsets: ["latin"],
+  weight: ["500", "600", "700", "800"],
+  variable: "--font-baloo",
+  display: "swap",
+})
+
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-jakarta",
+  display: "swap",
+})
+
+const STEPS = [
+  { num: "01", title: "Find", body: "Choose your grade and subject." },
+  { num: "02", title: "Choose", body: "Browse tutors and read their profiles." },
+  { num: "03", title: "Book", body: "Choose an available date and time." },
+  { num: "04", title: "Learn", body: "Meet your tutor online through Google Meet." },
+]
+
+const STUDENT_POINTS = [
+  "Filter tutors by grade level and subject",
+  "See real-time availability in your own timezone",
+  "Book a free session in a few clicks",
+  "Get your Google Meet link by email — no extra sign-up",
+]
+
+const VOLUNTEER_POINTS = [
+  "Apply and pick the grades and subjects you teach",
+  "Set your own weekly availability",
+  "Get approved before you appear publicly",
+  "Track your volunteer hours automatically",
+]
+
+export default function HomePage() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+    <div className={`landing-theme ${baloo.variable} ${jakarta.variable}`}>
+      <SiteNav />
+
+      <main>
+        <section className="hero">
+          <div className="hero__grid">
+            <div className="hero__copy" style={{ "--i": 0 } as React.CSSProperties}>
+              <h1 className="hero__title">Free Online Tutoring. Personalized Support.</h1>
+              <p className="hero__lede">
+                Find a volunteer tutor, choose a time that works for you, and meet one-on-one
+                through Google Meet — completely free.
+              </p>
+              <div className="hero__actions">
+                <Link href="/signup" className="btn btn--primary btn--lg">
+                  Find a Tutor
+                </Link>
+                <Link href="/signup" className="btn btn--outline btn--lg">
+                  Become a Volunteer Tutor
+                </Link>
+              </div>
+            </div>
+            <div className="hero__figure" style={{ "--i": 1 } as React.CSSProperties}>
+              <div className="hero__figure-backdrop" aria-hidden="true" />
+              <Image
+                src="/mascot/livi-find-a-tutor.png"
+                alt="Livi the fox, Learnivia's mascot, wearing a backpack and holding a book"
+                width={720}
+                height={900}
+                priority
+                className="hero__figure-img"
+              />
+            </div>
+          </div>
+        </section>
+
+        <section id="how-it-works" className="steps-section">
+          <header className="head-hang">
+            <h2>How it works</h2>
+          </header>
+          <ol className="steps">
+            {STEPS.map((step, i) => (
+              <li className="step" key={step.num} style={{ "--i": i } as React.CSSProperties}>
+                <span className="step__num">{step.num}</span>
+                <h3 className="step__title">{step.title}</h3>
+                <p className="step__body">{step.body}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <section id="students" className="split__row">
+          <div className="split__text">
+            <h2>For students &amp; parents</h2>
+            <p>
+              Search approved volunteer tutors, compare profiles, and book a session that fits
+              your schedule — every session is free.
+            </p>
+            <ul className="split__points">
+              {STUDENT_POINTS.map((point) => (
+                <li key={point}>{point}</li>
+              ))}
+            </ul>
+            <Link href="/signup" className="btn btn--outline">
+              Find a Tutor
+            </Link>
+          </div>
+          <figure className="split__figure">
             <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
+              src="/mascot/livi-book-a-session.png"
+              alt="Livi the fox pointing at a calendar with a booked session checked off"
+              width={720}
+              height={900}
+              loading="lazy"
+              className="split__figure-img"
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+          </figure>
+        </section>
+
+        <section id="volunteers" className="split__row split__row--reverse">
+          <figure className="split__figure">
+            <Image
+              src="/mascot/livi-become-a-tutor.png"
+              alt="Livi the fox holding up a volunteer tutor identification badge"
+              width={720}
+              height={900}
+              loading="lazy"
+              className="split__figure-img"
+            />
+          </figure>
+          <div className="split__text">
+            <h2>For volunteer tutors</h2>
+            <p>
+              Teach the grades and subjects you know, on the hours you set. We handle scheduling,
+              timezones, and the Google Meet link.
+            </p>
+            <ul className="split__points">
+              {VOLUNTEER_POINTS.map((point) => (
+                <li key={point}>{point}</li>
+              ))}
+            </ul>
+            <Link href="/signup" className="btn btn--outline">
+              Become a Tutor
+            </Link>
+          </div>
+        </section>
+
+        <section className="trust">
+          <div className="trust__item trust__item--wide">
+            <ShieldCheck aria-hidden="true" />
+            <div>
+              <h3>Tutors are reviewed before they appear</h3>
+              <p>Every volunteer is approved by an administrator before students can find them.</p>
+            </div>
+          </div>
+          <div className="trust__item">
+            <HandHeart aria-hidden="true" />
+            <div>
+              <h3>Always free</h3>
+              <p>No fees, ever — for students or tutors.</p>
+            </div>
+          </div>
+          <div className="trust__item">
+            <Globe2 aria-hidden="true" />
+            <div>
+              <h3>Your timezone, automatically</h3>
+              <p>Availability shows in your local time — no math required.</p>
+            </div>
+          </div>
+        </section>
       </main>
+
+      <footer className="foot-stmt">
+        <p className="foot-stmt__line">Every student deserves someone who shows up.</p>
+        <div className="foot-stmt__links">
+          <a href="#how-it-works">How it works</a>
+          <Link href="/signup">Find a Tutor</Link>
+          <Link href="/signup">Become a Tutor</Link>
+          <Link href="/login">Log in</Link>
+        </div>
+        <div className="foot-stmt__meta">
+          <span className="wordmark">Learnivia</span>
+          <span className="muted">© 2026 Learnivia · Free, volunteer-run tutoring</span>
+        </div>
+      </footer>
     </div>
-  );
+  )
 }
