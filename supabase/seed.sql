@@ -100,7 +100,7 @@ values
    'Approved tutor bio.', '+1-555-0202', '2004-09-15');
 
 insert into public.grade_levels (label, category, sort_order, is_active) values
-  ('Grade 5', 'elementary', 50, true),
+  ('Fixture Active Grade', 'elementary', 500, true),
   ('Retired Grade', 'high', 999, false);
 
 insert into public.subjects (label, category, sort_order, is_active) values

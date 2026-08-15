@@ -1,5 +1,5 @@
 begin;
-select plan(6);
+select plan(7);
 
 -- Assertion 5: a tutor cannot self-approve.
 savepoint s1;
@@ -50,6 +50,25 @@ select is(
 );
 reset role;
 release savepoint s3;
+
+-- Final-review Fix 3: an approved tutor's direct UPDATE is frozen. The
+-- USING clause on tutor_profiles_update_own now requires
+-- application_status in ('pending', 'rejected'), so this tutor's row is
+-- simply not matched by the UPDATE -- 0 rows affected, no error, bio
+-- unchanged. This is the direct-PostgREST-write hole that made an approved
+-- tutor's bio/photo/languages editable outside submit_tutor_application().
+savepoint s3b;
+select tests.authenticate_as('44444444-4444-4444-4444-444444444444'); -- approved tutor
+update public.tutor_profiles set bio = 'Attempted direct edit.'
+  where profile_id = '44444444-4444-4444-4444-444444444444';
+select is(
+  (select bio from public.tutor_profiles
+    where profile_id = '44444444-4444-4444-4444-444444444444'),
+  'Approved tutor bio.',
+  'an approved tutor cannot edit their own bio directly'
+);
+reset role;
+release savepoint s3b;
 
 -- Assertion 7: anon cannot reach tutor_profiles at all.
 --

@@ -27,13 +27,33 @@ select is(
   'no public table grants TRUNCATE/REFERENCES/TRIGGER/MAINTAIN to anon or authenticated'
 );
 
+-- Ground truth, computed as table owner (RLS is ENABLE not FORCE, so this
+-- default connection is unrestricted) before switching role below. This
+-- makes the assertions robust to however many real seed rows exist, instead
+-- of hardcoding a total that Phase 2's real lookup data would break.
+select set_config(
+  'test.active_grade_levels',
+  (select count(*)::text from public.grade_levels where is_active),
+  false
+);
+select set_config(
+  'test.active_subjects',
+  (select count(*)::text from public.subjects where is_active),
+  false
+);
+select set_config(
+  'test.total_subjects',
+  (select count(*)::text from public.subjects),
+  false
+);
+
 -- Assertion 9: anon reads active rows only.
 savepoint s1;
 select tests.authenticate_as_anon();
 select is(
   (select count(*)::int from public.grade_levels),
-  1,
-  'anon reading grade_levels sees only the active row'
+  current_setting('test.active_grade_levels')::int,
+  'anon sees exactly the active grade_levels rows'
 );
 select is(
   (select count(*)::int from public.grade_levels where not is_active),
@@ -42,8 +62,8 @@ select is(
 );
 select is(
   (select count(*)::int from public.subjects),
-  1,
-  'anon reading subjects sees only the active row'
+  current_setting('test.active_subjects')::int,
+  'anon sees exactly the active subjects rows'
 );
 reset role;
 release savepoint s1;
@@ -65,11 +85,11 @@ savepoint s3;
 select tests.authenticate_as('55555555-5555-5555-5555-555555555555');
 select is(
   (select count(*)::int from public.subjects),
-  2,
-  'an active admin sees inactive subjects too'
+  current_setting('test.total_subjects')::int,
+  'an active admin sees every subject row, including inactive ones'
 );
 select lives_ok(
-  $$insert into public.subjects (label, category) values ('Geometry', 'STEM')$$,
+  $$insert into public.subjects (label, category) values ('Trigonometry', 'STEM')$$,
   'an admin can insert a subject'
 );
 reset role;

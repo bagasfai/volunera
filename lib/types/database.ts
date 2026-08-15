@@ -5,7 +5,6 @@ export type Json =
   | null
   | { [key: string]: Json | undefined }
   | Json[]
-
 export type Database = {
   graphql_public: {
     Tables: {
@@ -178,6 +177,39 @@ export type Database = {
         }
         Relationships: []
       }
+      tutor_grade_levels: {
+        Row: {
+          created_at: string
+          grade_level_id: string
+          tutor_id: string
+        }
+        Insert: {
+          created_at?: string
+          grade_level_id: string
+          tutor_id: string
+        }
+        Update: {
+          created_at?: string
+          grade_level_id?: string
+          tutor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tutor_grade_levels_grade_level_id_fkey"
+            columns: ["grade_level_id"]
+            isOneToOne: false
+            referencedRelation: "grade_levels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tutor_grade_levels_tutor_id_fkey"
+            columns: ["tutor_id"]
+            isOneToOne: false
+            referencedRelation: "tutor_profiles"
+            referencedColumns: ["profile_id"]
+          },
+        ]
+      }
       tutor_profiles: {
         Row: {
           application_status: Database["public"]["Enums"]["tutor_application_status"]
@@ -250,6 +282,39 @@ export type Database = {
           },
         ]
       }
+      tutor_subjects: {
+        Row: {
+          created_at: string
+          subject_id: string
+          tutor_id: string
+        }
+        Insert: {
+          created_at?: string
+          subject_id: string
+          tutor_id: string
+        }
+        Update: {
+          created_at?: string
+          subject_id?: string
+          tutor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tutor_subjects_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tutor_subjects_tutor_id_fkey"
+            columns: ["tutor_id"]
+            isOneToOne: false
+            referencedRelation: "tutor_profiles"
+            referencedColumns: ["profile_id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -281,6 +346,45 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      submit_tutor_application: {
+        Args: {
+          p_bio: string
+          p_date_of_birth: string
+          p_education_status: string
+          p_grade_level_ids: string[]
+          p_languages: string[]
+          p_motivation: string
+          p_phone: string
+          p_photo_url: string
+          p_prior_experience: string
+          p_subject_ids: string[]
+          p_teaching_style_tags: string[]
+        }
+        Returns: {
+          application_status: Database["public"]["Enums"]["tutor_application_status"]
+          application_submitted_at: string | null
+          bio: string | null
+          created_at: string
+          date_of_birth: string | null
+          education_status: string | null
+          languages: string[]
+          motivation: string | null
+          phone: string | null
+          photo_url: string | null
+          prior_experience: string | null
+          profile_id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          teaching_style_tags: string[]
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "tutor_profiles"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
     }
     Enums: {
       account_status: "active" | "suspended" | "deactivated"
@@ -298,11 +402,8 @@ export type Database = {
     }
   }
 }
-
 type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
-
 type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
-
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
@@ -331,7 +432,6 @@ export type Tables<
       ? R
       : never
     : never
-
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
@@ -356,7 +456,6 @@ export type TablesInsert<
       ? I
       : never
     : never
-
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
@@ -381,7 +480,6 @@ export type TablesUpdate<
       ? U
       : never
     : never
-
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
@@ -398,7 +496,6 @@ export type Enums<
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
     ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
-
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
@@ -415,7 +512,6 @@ export type CompositeTypes<
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
     ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
-
 export const Constants = {
   graphql_public: {
     Enums: {},
@@ -435,4 +531,3 @@ export const Constants = {
     },
   },
 } as const
-
