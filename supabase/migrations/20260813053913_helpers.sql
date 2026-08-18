@@ -1,5 +1,3 @@
--- A private schema for internal helpers. It is not in PostgREST's exposed
--- schema list, so nothing here is reachable as a Data API RPC endpoint.
 create schema if not exists private;
 revoke all on schema private from public;
 grant usage on schema private to authenticated;
@@ -16,9 +14,6 @@ begin
 end;
 $$;
 
--- Rejects anything that is not a real IANA zone name. This cannot be a CHECK
--- constraint: pg_timezone_names is a view and is not IMMUTABLE. An invalid
--- value here silently breaks Phase 3's DST arithmetic.
 create or replace function public.validate_timezone()
 returns trigger
 language plpgsql

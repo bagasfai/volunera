@@ -1,5 +1,5 @@
-import Link from 'next/link'
-import type { Profile } from '@/lib/auth/dal'
+import Link from "next/link";
+import type { Profile } from "@/lib/auth/dal";
 
 export function AdminShell({ profile }: { profile: Profile }) {
   return (
@@ -10,5 +10,5 @@ export function AdminShell({ profile }: { profile: Profile }) {
         Review queue
       </Link>
     </section>
-  )
+  );
 }

@@ -1,4 +1,3 @@
-// app/dashboard/_shells/tutor-application-form.tsx
 'use client'
 
 import { useActionState, useState } from 'react'

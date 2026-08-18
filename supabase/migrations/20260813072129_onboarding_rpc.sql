@@ -1,6 +1,3 @@
--- The only path that creates a profiles row. SECURITY DEFINER so it can
--- insert despite there being no INSERT policy, which is what stops a new
--- account from making itself an admin.
 create function public.complete_onboarding(
   p_role public.user_role,
   p_first_name text,
@@ -33,7 +30,6 @@ begin
       using errcode = '23505';
   end if;
 
-  -- Email and avatar come from auth.users, never from the caller.
   select u.email,
          nullif(u.raw_user_meta_data ->> 'avatar_url', '')
     into v_email, v_avatar

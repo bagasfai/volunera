@@ -1,9 +1,3 @@
--- supabase/migrations/20260814090100_10_lookup_data.sql
--- Real product seed data, not test fixtures — supabase/seed.sql explicitly
--- defers this ("LOCAL DEVELOPMENT ONLY... NOT the product seed data").
--- `on conflict do nothing` makes this safe to have already been added by
--- hand in an environment where an admin got here first.
-
 insert into public.grade_levels (label, category, sort_order) values
   ('Grade 1', 'elementary', 10),
   ('Grade 2', 'elementary', 20),
@@ -19,7 +13,6 @@ insert into public.grade_levels (label, category, sort_order) values
   ('Grade 12', 'high', 120)
 on conflict (label) do nothing;
 
--- Brief section 11's example list, in the order given.
 insert into public.subjects (label, sort_order) values
   ('Math', 10),
   ('Science', 20),

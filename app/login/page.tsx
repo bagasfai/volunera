@@ -1,13 +1,13 @@
-import Link from 'next/link'
-import { safeNextPath } from '@/lib/auth/safe-redirect'
-import { LoginForm } from './login-form'
+import Link from "next/link";
+import { safeNextPath } from "@/lib/auth/safe-redirect";
+import { LoginForm } from "./login-form";
 
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ next?: string }>
+  searchParams: Promise<{ next?: string }>;
 }) {
-  const { next } = await searchParams
+  const { next } = await searchParams;
 
   return (
     <main className="mx-auto flex max-w-sm flex-col gap-6 p-8">
@@ -17,5 +17,5 @@ export default async function LoginPage({
         No account? <Link href="/signup">Create one</Link>
       </p>
     </main>
-  )
+  );
 }

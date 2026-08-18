@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import Link from "next/link";
 
 export default function AuthCodeErrorPage() {
   return (
@@ -10,5 +10,5 @@ export default function AuthCodeErrorPage() {
       </p>
       <Link href="/login">Back to sign in</Link>
     </main>
-  )
+  );
 }

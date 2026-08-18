@@ -1,4 +1,4 @@
-import type { Profile } from '@/lib/auth/dal'
+import type { Profile } from "@/lib/auth/dal";
 
 export function StudentShell({ profile }: { profile: Profile }) {
   return (
@@ -9,5 +9,5 @@ export function StudentShell({ profile }: { profile: Profile }) {
       </p>
       <p>Timezone: {profile.timezone}</p>
     </section>
-  )
+  );
 }

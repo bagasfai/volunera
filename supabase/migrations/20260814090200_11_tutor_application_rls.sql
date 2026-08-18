@@ -1,7 +1,3 @@
--- Ordinary ownership RLS — grade/subject membership is not the sensitive
--- application_status transition, so it does not need to go through
--- submit_tutor_application(). Same shape as students_update_own in Phase 1.
-
 create policy tutor_grade_levels_select_own
   on public.tutor_grade_levels
   for select

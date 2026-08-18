@@ -24,10 +24,6 @@ create index grade_levels_active_sort_idx
 create index subjects_active_sort_idx
   on public.subjects (is_active, sort_order);
 
--- Tables in public are no longer auto-exposed to the Data API (changelog
--- 2026-04-28), so the grants have to be explicit or PostgREST returns 404
--- regardless of RLS. Writes go to authenticated only; the admin-only policy
--- in Task 8 narrows that further.
 grant select on public.grade_levels to anon, authenticated;
 grant select on public.subjects to anon, authenticated;
 grant insert, update, delete on public.grade_levels to authenticated;

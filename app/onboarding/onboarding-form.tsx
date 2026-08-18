@@ -1,53 +1,45 @@
-'use client'
+"use client";
 
-import { useActionState, useSyncExternalStore } from 'react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { useActionState, useSyncExternalStore } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   completeOnboarding,
   type OnboardingState,
-} from '@/lib/auth/onboarding-actions'
+} from "@/lib/auth/onboarding-actions";
 
-const initialState: OnboardingState = {}
+const initialState: OnboardingState = {};
 
-// No change events to subscribe to — the browser's timezone does not shift
-// mid-session — so this is a no-op subscription used purely to let
-// useSyncExternalStore give us a hydration-safe read of a browser-only API.
 function subscribeToNothing() {
-  return () => {}
+  return () => {};
 }
 
 function getTimezoneSnapshot() {
-  return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
+  return Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
 }
 
 function getServerTimezoneSnapshot() {
-  return 'UTC'
+  return "UTC";
 }
 
 export function OnboardingForm({
   defaultFirstName,
   defaultLastName,
 }: {
-  defaultFirstName: string
-  defaultLastName: string
+  defaultFirstName: string;
+  defaultLastName: string;
 }) {
   const [state, formAction, pending] = useActionState(
     completeOnboarding,
     initialState,
-  )
-  // Read on the client so the value reflects the user's device, not the
-  // server's. Stored as an IANA name; Phase 3 depends on it being real.
-  // useSyncExternalStore (rather than a state-setting effect) renders the
-  // SSR-safe 'UTC' fallback on the server and first client paint, then
-  // swaps in the real snapshot without a hydration mismatch.
+  );
   const timezone = useSyncExternalStore(
     subscribeToNothing,
     getTimezoneSnapshot,
     getServerTimezoneSnapshot,
-  )
+  );
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
@@ -55,7 +47,7 @@ export function OnboardingForm({
 
       <fieldset
         className="flex flex-col gap-2"
-        aria-describedby={state.fieldErrors?.role ? 'role-error' : undefined}
+        aria-describedby={state.fieldErrors?.role ? "role-error" : undefined}
       >
         <legend className="text-sm font-medium">I am here to…</legend>
         <RadioGroup
@@ -95,7 +87,7 @@ export function OnboardingForm({
           required
           aria-invalid={state.fieldErrors?.firstName ? true : undefined}
           aria-describedby={
-            state.fieldErrors?.firstName ? 'firstName-error' : undefined
+            state.fieldErrors?.firstName ? "firstName-error" : undefined
           }
         />
         {state.fieldErrors?.firstName && (
@@ -119,7 +111,7 @@ export function OnboardingForm({
           required
           aria-invalid={state.fieldErrors?.lastName ? true : undefined}
           aria-describedby={
-            state.fieldErrors?.lastName ? 'lastName-error' : undefined
+            state.fieldErrors?.lastName ? "lastName-error" : undefined
           }
         />
         {state.fieldErrors?.lastName && (
@@ -133,9 +125,7 @@ export function OnboardingForm({
         )}
       </div>
 
-      <p className="text-sm text-muted-foreground">
-        Your timezone: {timezone}
-      </p>
+      <p className="text-sm text-muted-foreground">Your timezone: {timezone}</p>
       {state.fieldErrors?.timezone && (
         <p role="alert" className="text-sm text-destructive">
           {state.fieldErrors.timezone}
@@ -149,8 +139,8 @@ export function OnboardingForm({
       )}
 
       <Button type="submit" disabled={pending}>
-        {pending ? 'Setting up…' : 'Finish setting up'}
+        {pending ? "Setting up…" : "Finish setting up"}
       </Button>
     </form>
-  )
+  );
 }

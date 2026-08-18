@@ -1,15 +1,3 @@
--- supabase/migrations/20260814090300_12_submit_application_rpc.sql
-
--- Phase 2 amendment: submit_tutor_application() is the one legitimate path
--- that must write application_status/reviewed_at/reviewed_by as the tutor
--- themselves (flipping back to 'pending' on submit/resubmit). SECURITY
--- DEFINER elevates SQL privilege but does not change what auth.uid() /
--- private.is_admin() report, so without this the trigger silently reverted
--- the RPC's own UPDATE. A transaction-local GUC is the narrow escape hatch:
--- scoped to exactly this transaction (no risk to concurrent sessions,
--- unlike disabling the trigger table-wide), and set only by the RPC below.
--- Not reachable by a client directly — PostgREST exposes only table CRUD
--- and named RPCs, never set_config as a callable endpoint.
 create or replace function public.protect_tutor_application_columns()
 returns trigger
 language plpgsql
@@ -30,14 +18,6 @@ begin
 end;
 $$;
 
--- The only path that writes application_status back to 'pending'. It can
--- never write 'approved' — that is only ever set by an admin's direct
--- UPDATE, which is what makes "approving is the only way to approve" true
--- by construction. protect_tutor_application_columns() has a narrow,
--- transaction-scoped exception (above) that lets this specific UPDATE
--- through; the bypass is opened only after the state-machine guard above
--- has already refused any non-pending/rejected tutor, and closed again
--- immediately after the UPDATE.
 create function public.submit_tutor_application(
   p_bio text,
   p_motivation text,

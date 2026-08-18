@@ -8,7 +8,6 @@ create table public.tutor_profiles (
   motivation text,
   prior_experience text,
   photo_url text,
-  -- phone and date_of_birth must never reach a student's browser.
   phone text,
   date_of_birth date,
   application_status public.tutor_application_status not null default 'pending',
@@ -27,9 +26,6 @@ create index tutor_profiles_application_status_idx
 create index tutor_profiles_reviewed_by_idx
   on public.tutor_profiles (reviewed_by);
 
--- Without this a tutor could self-approve, which discards the entire
--- safety model. Same reasoning as protect_profile_columns: WITH CHECK
--- cannot see the OLD row.
 create function public.protect_tutor_application_columns()
 returns trigger
 language plpgsql

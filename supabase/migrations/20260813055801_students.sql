@@ -1,8 +1,6 @@
 create table public.students (
   profile_id uuid primary key
     references public.profiles (id) on delete cascade,
-  -- Nullable: there is no lookup seed data, so onboarding has no grade to
-  -- offer. Populated in Phase 4/5.
   grade_level_id uuid references public.grade_levels (id) on delete restrict,
   school text,
   guardian_name text,
@@ -19,9 +17,6 @@ create table public.students (
 
 alter table public.students enable row level security;
 
--- Postgres does not index FK columns automatically. This one is ON DELETE
--- RESTRICT, so without the index every grade_levels delete scans all of
--- students to check for referencing rows.
 create index students_grade_level_id_idx
   on public.students (grade_level_id);
 

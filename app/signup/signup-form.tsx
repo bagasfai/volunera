@@ -1,15 +1,15 @@
-'use client'
+"use client";
 
-import { useActionState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { signUp, signInWithGoogle, type AuthState } from '@/lib/auth/actions'
+import { useActionState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { signUp, signInWithGoogle, type AuthState } from "@/lib/auth/actions";
 
-const initialState: AuthState = {}
+const initialState: AuthState = {};
 
 export function SignupForm() {
-  const [state, formAction, pending] = useActionState(signUp, initialState)
+  const [state, formAction, pending] = useActionState(signUp, initialState);
 
   return (
     <div className="flex flex-col gap-3">
@@ -28,10 +28,16 @@ export function SignupForm() {
               autoComplete="email"
               required
               aria-invalid={state.fieldErrors?.email ? true : undefined}
-              aria-describedby={state.fieldErrors?.email ? 'email-error' : undefined}
+              aria-describedby={
+                state.fieldErrors?.email ? "email-error" : undefined
+              }
             />
             {state.fieldErrors?.email && (
-              <p id="email-error" role="alert" className="text-sm text-destructive">
+              <p
+                id="email-error"
+                role="alert"
+                className="text-sm text-destructive"
+              >
                 {state.fieldErrors.email}
               </p>
             )}
@@ -47,10 +53,16 @@ export function SignupForm() {
               required
               minLength={8}
               aria-invalid={state.fieldErrors?.password ? true : undefined}
-              aria-describedby={state.fieldErrors?.password ? 'password-error' : undefined}
+              aria-describedby={
+                state.fieldErrors?.password ? "password-error" : undefined
+              }
             />
             {state.fieldErrors?.password && (
-              <p id="password-error" role="alert" className="text-sm text-destructive">
+              <p
+                id="password-error"
+                role="alert"
+                className="text-sm text-destructive"
+              >
                 {state.fieldErrors.password}
               </p>
             )}
@@ -63,7 +75,7 @@ export function SignupForm() {
           )}
 
           <Button type="submit" disabled={pending}>
-            {pending ? 'Creating account…' : 'Create account'}
+            {pending ? "Creating account…" : "Create account"}
           </Button>
         </form>
       )}
@@ -75,5 +87,5 @@ export function SignupForm() {
         </Button>
       </form>
     </div>
-  )
+  );
 }

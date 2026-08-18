@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { Button } from '@/components/ui/button'
+import { Button } from "@/components/ui/button";
 
 export default function Error({ reset }: { error: Error; reset: () => void }) {
   return (
@@ -11,5 +11,5 @@ export default function Error({ reset }: { error: Error; reset: () => void }) {
         Try again
       </Button>
     </main>
-  )
+  );
 }

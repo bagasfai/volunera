@@ -1,43 +1,37 @@
-import Link from "next/link"
-import Image from "next/image"
-import { Baloo_2, Plus_Jakarta_Sans } from "next/font/google"
-import { ShieldCheck, HandHeart, Globe2 } from "lucide-react"
-import { SiteNav } from "@/components/site-nav"
-
-const baloo = Baloo_2({
-  subsets: ["latin"],
-  weight: ["500", "600", "700", "800"],
-  variable: "--font-baloo",
-  display: "swap",
-})
-
-const jakarta = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-jakarta",
-  display: "swap",
-})
+import Link from "next/link";
+import Image from "next/image";
+import { ShieldCheck, HandHeart, Globe2 } from "lucide-react";
+import { SiteNav } from "@/components/site-nav";
+import { baloo, jakarta } from "@/lib/fonts";
 
 const STEPS = [
   { num: "01", title: "Find", body: "Choose your grade and subject." },
-  { num: "02", title: "Choose", body: "Browse tutors and read their profiles." },
+  {
+    num: "02",
+    title: "Choose",
+    body: "Browse tutors and read their profiles.",
+  },
   { num: "03", title: "Book", body: "Choose an available date and time." },
-  { num: "04", title: "Learn", body: "Meet your tutor online through Google Meet." },
-]
+  {
+    num: "04",
+    title: "Learn",
+    body: "Meet your tutor online through Google Meet.",
+  },
+];
 
 const STUDENT_POINTS = [
   "Filter tutors by grade level and subject",
   "See real-time availability in your own timezone",
   "Book a free session in a few clicks",
   "Get your Google Meet link by email — no extra sign-up",
-]
+];
 
 const VOLUNTEER_POINTS = [
   "Apply and pick the grades and subjects you teach",
   "Set your own weekly availability",
   "Get approved before you appear publicly",
   "Track your volunteer hours automatically",
-]
+];
 
 export default function HomePage() {
   return (
@@ -47,14 +41,19 @@ export default function HomePage() {
       <main>
         <section className="hero">
           <div className="hero__grid">
-            <div className="hero__copy" style={{ "--i": 0 } as React.CSSProperties}>
-              <h1 className="hero__title">Free Online Tutoring. Personalized Support.</h1>
+            <div
+              className="hero__copy"
+              style={{ "--i": 0 } as React.CSSProperties}
+            >
+              <h1 className="hero__title">
+                Free Online Tutoring. Personalized Support.
+              </h1>
               <p className="hero__lede">
-                Find a volunteer tutor, choose a time that works for you, and meet one-on-one
-                through Google Meet — completely free.
+                Find a volunteer tutor, choose a time that works for you, and
+                meet one-on-one through Google Meet — completely free.
               </p>
               <div className="hero__actions">
-                <Link href="/signup" className="btn btn--primary btn--lg">
+                <Link href="/tutors" className="btn btn--primary btn--lg">
                   Find a Tutor
                 </Link>
                 <Link href="/signup" className="btn btn--outline btn--lg">
@@ -62,7 +61,10 @@ export default function HomePage() {
                 </Link>
               </div>
             </div>
-            <div className="hero__figure" style={{ "--i": 1 } as React.CSSProperties}>
+            <div
+              className="hero__figure"
+              style={{ "--i": 1 } as React.CSSProperties}
+            >
               <div className="hero__figure-backdrop" aria-hidden="true" />
               <Image
                 src="/mascot/livi-find-a-tutor.png"
@@ -82,7 +84,11 @@ export default function HomePage() {
           </header>
           <ol className="steps">
             {STEPS.map((step, i) => (
-              <li className="step" key={step.num} style={{ "--i": i } as React.CSSProperties}>
+              <li
+                className="step"
+                key={step.num}
+                style={{ "--i": i } as React.CSSProperties}
+              >
                 <span className="step__num">{step.num}</span>
                 <h3 className="step__title">{step.title}</h3>
                 <p className="step__body">{step.body}</p>
@@ -95,15 +101,15 @@ export default function HomePage() {
           <div className="split__text">
             <h2>For students &amp; parents</h2>
             <p>
-              Search approved volunteer tutors, compare profiles, and book a session that fits
-              your schedule — every session is free.
+              Search approved volunteer tutors, compare profiles, and book a
+              session that fits your schedule — every session is free.
             </p>
             <ul className="split__points">
               {STUDENT_POINTS.map((point) => (
                 <li key={point}>{point}</li>
               ))}
             </ul>
-            <Link href="/signup" className="btn btn--outline">
+            <Link href="/tutors" className="btn btn--outline">
               Find a Tutor
             </Link>
           </div>
@@ -133,8 +139,8 @@ export default function HomePage() {
           <div className="split__text">
             <h2>For volunteer tutors</h2>
             <p>
-              Teach the grades and subjects you know, on the hours you set. We handle scheduling,
-              timezones, and the Google Meet link.
+              Teach the grades and subjects you know, on the hours you set. We
+              handle scheduling, timezones, and the Google Meet link.
             </p>
             <ul className="split__points">
               {VOLUNTEER_POINTS.map((point) => (
@@ -152,7 +158,10 @@ export default function HomePage() {
             <ShieldCheck aria-hidden="true" />
             <div>
               <h3>Tutors are reviewed before they appear</h3>
-              <p>Every volunteer is approved by an administrator before students can find them.</p>
+              <p>
+                Every volunteer is approved by an administrator before students
+                can find them.
+              </p>
             </div>
           </div>
           <div className="trust__item">
@@ -173,18 +182,22 @@ export default function HomePage() {
       </main>
 
       <footer className="foot-stmt">
-        <p className="foot-stmt__line">Every student deserves someone who shows up.</p>
+        <p className="foot-stmt__line">
+          Every student deserves someone who shows up.
+        </p>
         <div className="foot-stmt__links">
           <a href="#how-it-works">How it works</a>
-          <Link href="/signup">Find a Tutor</Link>
+          <Link href="/tutors">Find a Tutor</Link>
           <Link href="/signup">Become a Tutor</Link>
           <Link href="/login">Log in</Link>
         </div>
         <div className="foot-stmt__meta">
           <span className="wordmark">Learnivia</span>
-          <span className="muted">© 2026 Learnivia · Free, volunteer-run tutoring</span>
+          <span className="muted">
+            © 2026 Learnivia · Free, volunteer-run tutoring
+          </span>
         </div>
       </footer>
     </div>
-  )
+  );
 }
