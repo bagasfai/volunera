@@ -1,45 +1,45 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { useEffect, useRef, useState } from "react"
-import { Menu, X } from "lucide-react"
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
+import { Menu, X } from "lucide-react";
 
 const CENTER_LINKS = [
   { href: "#how-it-works", label: "How it works" },
   { href: "#students", label: "For students" },
   { href: "#volunteers", label: "For volunteers" },
-]
+];
 
 export function SiteNav() {
-  const [isScrolled, setIsScrolled] = useState(false)
-  const [isOpen, setIsOpen] = useState(false)
-  const toggleRef = useRef<HTMLButtonElement>(null)
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const toggleRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    let ticking = false
+    let ticking = false;
     function onScroll() {
-      if (ticking) return
-      ticking = true
+      if (ticking) return;
+      ticking = true;
       requestAnimationFrame(() => {
-        setIsScrolled(window.scrollY > 24)
-        ticking = false
-      })
+        setIsScrolled(window.scrollY > 24);
+        ticking = false;
+      });
     }
-    window.addEventListener("scroll", onScroll, { passive: true })
-    return () => window.removeEventListener("scroll", onScroll)
-  }, [])
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   useEffect(() => {
-    if (!isOpen) return
+    if (!isOpen) return;
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") {
-        setIsOpen(false)
-        toggleRef.current?.focus()
+        setIsOpen(false);
+        toggleRef.current?.focus();
       }
     }
-    window.addEventListener("keydown", onKey)
-    return () => window.removeEventListener("keydown", onKey)
-  }, [isOpen])
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isOpen]);
 
   return (
     <header className={`nav${isScrolled ? " is-scrolled" : ""}`}>
@@ -61,7 +61,7 @@ export function SiteNav() {
           <Link href="/login" className="btn btn--text">
             Log in
           </Link>
-          <Link href="/signup" className="btn btn--primary">
+          <Link href="/tutors" className="btn btn--primary">
             Find a Tutor
           </Link>
         </div>
@@ -74,14 +74,23 @@ export function SiteNav() {
           aria-controls="nav-sheet"
           onClick={() => setIsOpen((v) => !v)}
         >
-          {isOpen ? <X size={22} aria-hidden="true" /> : <Menu size={22} aria-hidden="true" />}
+          {isOpen ? (
+            <X size={22} aria-hidden="true" />
+          ) : (
+            <Menu size={22} aria-hidden="true" />
+          )}
           <span className="sr-only">{isOpen ? "Close menu" : "Open menu"}</span>
         </button>
       </div>
 
       <div id="nav-sheet" className={`nav__sheet${isOpen ? " is-open" : ""}`}>
         {CENTER_LINKS.map((link) => (
-          <a key={link.href} href={link.href} className="nav__sheet-link" onClick={() => setIsOpen(false)}>
+          <a
+            key={link.href}
+            href={link.href}
+            className="nav__sheet-link"
+            onClick={() => setIsOpen(false)}
+          >
             {link.label}
           </a>
         ))}
@@ -89,11 +98,11 @@ export function SiteNav() {
           <Link href="/login" className="btn btn--text">
             Log in
           </Link>
-          <Link href="/signup" className="btn btn--primary">
+          <Link href="/tutors" className="btn btn--primary">
             Find a Tutor
           </Link>
         </div>
       </div>
     </header>
-  )
+  );
 }
