@@ -1,9 +1,6 @@
 "use client";
 
 import { useActionState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { signIn, signInWithGoogle, type AuthState } from "@/lib/auth/actions";
 
 const initialState: AuthState = {};
@@ -12,13 +9,13 @@ export function LoginForm({ next }: { next: string }) {
   const [state, formAction, pending] = useActionState(signIn, initialState);
 
   return (
-    <div className="flex flex-col gap-3">
-      <form action={formAction} className="flex flex-col gap-4">
+    <div>
+      <form action={formAction} className="form">
         <input type="hidden" name="next" value={next} />
 
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="email">Email</Label>
-          <Input
+        <div className="field">
+          <label htmlFor="email">Email</label>
+          <input
             id="email"
             name="email"
             type="email"
@@ -30,19 +27,15 @@ export function LoginForm({ next }: { next: string }) {
             }
           />
           {state.fieldErrors?.email && (
-            <p
-              id="email-error"
-              role="alert"
-              className="text-sm text-destructive"
-            >
+            <p id="email-error" role="alert" className="field__error">
               {state.fieldErrors.email}
             </p>
           )}
         </div>
 
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="password">Password</Label>
-          <Input
+        <div className="field">
+          <label htmlFor="password">Password</label>
+          <input
             id="password"
             name="password"
             type="password"
@@ -54,32 +47,34 @@ export function LoginForm({ next }: { next: string }) {
             }
           />
           {state.fieldErrors?.password && (
-            <p
-              id="password-error"
-              role="alert"
-              className="text-sm text-destructive"
-            >
+            <p id="password-error" role="alert" className="field__error">
               {state.fieldErrors.password}
             </p>
           )}
         </div>
 
         {state.error && (
-          <p role="alert" className="text-sm text-destructive">
+          <p role="alert" className="alert alert--error">
             {state.error}
           </p>
         )}
 
-        <Button type="submit" disabled={pending}>
+        <button
+          type="submit"
+          className="btn btn--primary btn--block"
+          disabled={pending}
+        >
           {pending ? "Signing in…" : "Sign in"}
-        </Button>
+        </button>
       </form>
+
+      <p className="auth__divider">or</p>
 
       <form action={signInWithGoogle}>
         <input type="hidden" name="next" value={next} />
-        <Button type="submit" variant="outline" className="w-full">
+        <button type="submit" className="btn btn--quiet btn--block">
           Continue with Google
-        </Button>
+        </button>
       </form>
     </div>
   );

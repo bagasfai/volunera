@@ -1,10 +1,6 @@
 "use client";
 
 import { useActionState, useSyncExternalStore } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   completeOnboarding,
   type OnboardingState,
@@ -42,105 +38,112 @@ export function OnboardingForm({
   );
 
   return (
-    <form action={formAction} className="flex flex-col gap-4">
+    <form action={formAction} className="form">
       <input type="hidden" name="timezone" value={timezone} />
 
       <fieldset
-        className="flex flex-col gap-2"
+        className="fieldset"
         aria-describedby={state.fieldErrors?.role ? "role-error" : undefined}
       >
-        <legend className="text-sm font-medium">I am here to…</legend>
-        <RadioGroup
-          name="role"
-          defaultValue="student"
-          aria-invalid={state.fieldErrors?.role ? true : undefined}
-        >
-          <Label className="flex items-center gap-2 font-normal">
-            <RadioGroupItem
-              value="student"
-              aria-invalid={state.fieldErrors?.role ? true : undefined}
-            />
+        <legend className="fieldset__legend">I am here to…</legend>
+        <div className="choice-grid">
+          <label className="choice choice--block">
+            {
+              // eslint-disable-next-line jsx-a11y/role-supports-aria-props
+              <input
+                type="radio"
+                name="role"
+                value="student"
+                defaultChecked
+                aria-invalid={state.fieldErrors?.role ? true : undefined}
+              />
+            }
             <span>Find a tutor (student or parent)</span>
-          </Label>
-          <Label className="flex items-center gap-2 font-normal">
-            <RadioGroupItem
-              value="tutor"
-              aria-invalid={state.fieldErrors?.role ? true : undefined}
-            />
+          </label>
+          <label className="choice choice--block">
+            {
+              // eslint-disable-next-line jsx-a11y/role-supports-aria-props
+              <input
+                type="radio"
+                name="role"
+                value="tutor"
+                aria-invalid={state.fieldErrors?.role ? true : undefined}
+              />
+            }
             <span>Volunteer as a tutor</span>
-          </Label>
-        </RadioGroup>
+          </label>
+        </div>
         {state.fieldErrors?.role && (
-          <p id="role-error" role="alert" className="text-sm text-destructive">
+          <p id="role-error" role="alert" className="field__error">
             {state.fieldErrors.role}
           </p>
         )}
       </fieldset>
 
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="firstName">First name</Label>
-        <Input
-          id="firstName"
-          name="firstName"
-          autoComplete="given-name"
-          defaultValue={defaultFirstName}
-          required
-          aria-invalid={state.fieldErrors?.firstName ? true : undefined}
-          aria-describedby={
-            state.fieldErrors?.firstName ? "firstName-error" : undefined
-          }
-        />
-        {state.fieldErrors?.firstName && (
-          <p
-            id="firstName-error"
-            role="alert"
-            className="text-sm text-destructive"
-          >
-            {state.fieldErrors.firstName}
-          </p>
-        )}
+      <div className="form__row form__row--2">
+        <div className="field">
+          <label htmlFor="firstName">First name</label>
+          <input
+            id="firstName"
+            name="firstName"
+            autoComplete="given-name"
+            defaultValue={defaultFirstName}
+            required
+            aria-invalid={state.fieldErrors?.firstName ? true : undefined}
+            aria-describedby={
+              state.fieldErrors?.firstName ? "firstName-error" : undefined
+            }
+          />
+          {state.fieldErrors?.firstName && (
+            <p id="firstName-error" role="alert" className="field__error">
+              {state.fieldErrors.firstName}
+            </p>
+          )}
+        </div>
+
+        <div className="field">
+          <label htmlFor="lastName">Last name</label>
+          <input
+            id="lastName"
+            name="lastName"
+            autoComplete="family-name"
+            defaultValue={defaultLastName}
+            required
+            aria-invalid={state.fieldErrors?.lastName ? true : undefined}
+            aria-describedby={
+              state.fieldErrors?.lastName ? "lastName-error" : undefined
+            }
+          />
+          {state.fieldErrors?.lastName && (
+            <p id="lastName-error" role="alert" className="field__error">
+              {state.fieldErrors.lastName}
+            </p>
+          )}
+        </div>
       </div>
 
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="lastName">Last name</Label>
-        <Input
-          id="lastName"
-          name="lastName"
-          autoComplete="family-name"
-          defaultValue={defaultLastName}
-          required
-          aria-invalid={state.fieldErrors?.lastName ? true : undefined}
-          aria-describedby={
-            state.fieldErrors?.lastName ? "lastName-error" : undefined
-          }
-        />
-        {state.fieldErrors?.lastName && (
-          <p
-            id="lastName-error"
-            role="alert"
-            className="text-sm text-destructive"
-          >
-            {state.fieldErrors.lastName}
-          </p>
-        )}
-      </div>
-
-      <p className="text-sm text-muted-foreground">Your timezone: {timezone}</p>
+      <p className="field__hint">
+        Times are shown in your timezone: <strong>{timezone}</strong>
+      </p>
       {state.fieldErrors?.timezone && (
-        <p role="alert" className="text-sm text-destructive">
+        <p role="alert" className="field__error">
           {state.fieldErrors.timezone}
         </p>
       )}
 
       {state.error && (
-        <p role="alert" className="text-sm text-destructive">
+        <p role="alert" className="alert alert--error">
           {state.error}
         </p>
       )}
 
-      <Button type="submit" disabled={pending}>
+      <button
+        type="submit"
+        className="btn btn--primary btn--block"
+        disabled={pending}
+      >
         {pending ? "Setting up…" : "Finish setting up"}
-      </Button>
+      </button>
     </form>
   );
 }

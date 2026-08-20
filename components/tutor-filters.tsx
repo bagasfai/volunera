@@ -1,7 +1,6 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Label } from "@/components/ui/label";
 
 type Option = { id: string; label: string };
 
@@ -48,12 +47,11 @@ export function TutorFilters({
   const hasFilters = Boolean(currentGrade || currentSubject || currentLanguage);
 
   return (
-    <div className="flex flex-wrap items-end gap-4">
-      <div className="flex flex-col gap-1">
-        <Label htmlFor="tutor-filter-grade">Grade level</Label>
+    <div className="filter-bar">
+      <div className="field">
+        <label htmlFor="tutor-filter-grade">Grade level</label>
         <select
           id="tutor-filter-grade"
-          className="h-9 rounded-md border px-2 text-sm"
           value={currentGrade ?? ""}
           onChange={(e) => updateParam("grade", e.target.value)}
         >
@@ -73,11 +71,10 @@ export function TutorFilters({
         </select>
       </div>
 
-      <div className="flex flex-col gap-1">
-        <Label htmlFor="tutor-filter-subject">Subject</Label>
+      <div className="field">
+        <label htmlFor="tutor-filter-subject">Subject</label>
         <select
           id="tutor-filter-subject"
-          className="h-9 rounded-md border px-2 text-sm"
           value={currentSubject ?? ""}
           onChange={(e) => updateParam("subject", e.target.value)}
         >
@@ -90,11 +87,10 @@ export function TutorFilters({
         </select>
       </div>
 
-      <div className="flex flex-col gap-1">
-        <Label htmlFor="tutor-filter-language">Language</Label>
+      <div className="field">
+        <label htmlFor="tutor-filter-language">Language</label>
         <select
           id="tutor-filter-language"
-          className="h-9 rounded-md border px-2 text-sm"
           value={currentLanguage ?? ""}
           onChange={(e) => updateParam("language", e.target.value)}
         >
@@ -107,15 +103,16 @@ export function TutorFilters({
         </select>
       </div>
 
-      {hasFilters && (
+      <div className="filter-bar__actions">
         <button
           type="button"
-          className="text-sm text-muted-foreground underline"
+          className="btn btn--text"
           onClick={() => router.push("/tutors")}
+          disabled={!hasFilters}
         >
           Clear filters
         </button>
-      )}
+      </div>
     </div>
   );
 }

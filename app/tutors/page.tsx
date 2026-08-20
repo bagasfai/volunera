@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { SiteNav } from "@/components/site-nav";
+import { SiteFooter } from "@/components/site-footer";
 import { TutorFilters } from "@/components/tutor-filters";
 import { TutorCard } from "@/components/tutor-card";
-import { baloo, jakarta } from "@/lib/fonts";
+import { getProfile } from "@/lib/auth/dal";
+import { createClient } from "@/lib/supabase/server";
 import { tutorSearchParamsSchema } from "@/lib/validation/tutor-search";
 import {
   getPublicTutorAvailability,
@@ -31,7 +33,8 @@ export default async function TutorsPage({
   const parsed = tutorSearchParamsSchema.safeParse(raw);
   const filters = parsed.success ? parsed.data : { page: 1 };
 
-  const [lookups, results] = await Promise.all([
+  const [profile, lookups, results] = await Promise.all([
+    getProfile(),
     getPublicTutorLookups(),
     searchPublicTutors({
       gradeLevelId: filters.grade,
@@ -41,54 +44,112 @@ export default async function TutorsPage({
     }),
   ]);
 
-  const slotsByTutor = await Promise.all(
-    results.tutors.map((tutor) => getPublicTutorAvailability(tutor.id!, 14)),
-  );
+  const supabase = await createClient();
+  const [slotsByTutor, photosByTutor] = await Promise.all([
+    Promise.all(
+      results.tutors.map((tutor) => getPublicTutorAvailability(tutor.id!, 14)),
+    ),
+    Promise.all(
+      results.tutors.map(async (tutor) => {
+        if (!tutor.photo_url) return null;
+        const { data } = await supabase.storage
+          .from("tutor-photos")
+          .createSignedUrl(tutor.photo_url, 3600);
+        return data?.signedUrl ?? null;
+      }),
+    ),
+  ]);
 
   const totalPages = Math.max(1, Math.ceil(results.total / results.pageSize));
 
   return (
-    <div className={`landing-theme ${baloo.variable} ${jakarta.variable}`}>
-      <SiteNav />
-      <main className="mx-auto max-w-5xl px-4 py-10">
-        <h1 className="mb-6 text-2xl font-semibold">Find a Tutor</h1>
-        <TutorFilters
-          gradeLevels={lookups.gradeLevels}
-          subjects={lookups.subjects}
-          languages={lookups.languages}
-          currentGrade={filters.grade}
-          currentSubject={filters.subject}
-          currentLanguage={filters.language}
-        />
+    <>
+      <SiteNav isSignedIn={Boolean(profile)} />
 
-        {results.tutors.length === 0 ? (
-          <p className="mt-8 text-muted-foreground">
-            No tutors match these filters yet. Try widening your search.
-          </p>
-        ) : (
-          <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {results.tutors.map((tutor, i) => (
-              <TutorCard key={tutor.id} tutor={tutor} slots={slotsByTutor[i]} />
-            ))}
+      <main className="app-main">
+        <div className="wrap">
+          <div className="page-head">
+            <div className="page-head__row">
+              <div>
+                <p className="eyebrow">Find a tutor</p>
+                <h1>Browse volunteer tutors</h1>
+                <p className="page-head__lede">
+                  Every tutor here is approved by an admin. Filter by grade,
+                  subject, or language and then book a free 45-minute session.
+                </p>
+              </div>
+              <p className="panel__note">
+                {results.total} tutor{results.total === 1 ? "" : "s"} available
+              </p>
+            </div>
           </div>
-        )}
 
-        {totalPages > 1 && (
-          <nav className="mt-8 flex items-center justify-center gap-4 text-sm">
-            {filters.page > 1 && (
-              <Link href={buildPageHref(filters, filters.page - 1)}>
-                Previous
-              </Link>
-            )}
-            <span>
-              Page {filters.page} of {totalPages}
-            </span>
-            {filters.page < totalPages && (
-              <Link href={buildPageHref(filters, filters.page + 1)}>Next</Link>
-            )}
-          </nav>
-        )}
+          <TutorFilters
+            gradeLevels={lookups.gradeLevels}
+            subjects={lookups.subjects}
+            languages={lookups.languages}
+            currentGrade={filters.grade}
+            currentSubject={filters.subject}
+            currentLanguage={filters.language}
+          />
+
+          {results.tutors.length === 0 ? (
+            <div className="empty" style={{ marginTop: "var(--space-xl)" }}>
+              <h2>No tutors match these filters</h2>
+              <p>Try widening your search or clear a filter and start again.</p>
+              <p style={{ marginTop: "var(--space-md)" }}>
+                <Link href="/tutors" className="btn btn--quiet">
+                  Clear filters
+                </Link>
+              </p>
+            </div>
+          ) : (
+            <div
+              className="grid-auto grid-auto--3"
+              style={{ marginTop: "var(--space-xl)" }}
+            >
+              {results.tutors.map((tutor, i) => (
+                <TutorCard
+                  key={tutor.id}
+                  tutor={tutor}
+                  slots={slotsByTutor[i]}
+                  photoUrl={photosByTutor[i]}
+                />
+              ))}
+            </div>
+          )}
+
+          {totalPages > 1 && (
+            <nav className="pagination" aria-label="Pagination">
+              {filters.page > 1 ? (
+                <Link
+                  href={buildPageHref(filters, filters.page - 1)}
+                  className="btn btn--quiet btn--sm"
+                >
+                  Previous
+                </Link>
+              ) : (
+                <span />
+              )}
+              <span className="panel__note">
+                Page {filters.page} of {totalPages}
+              </span>
+              {filters.page < totalPages ? (
+                <Link
+                  href={buildPageHref(filters, filters.page + 1)}
+                  className="btn btn--quiet btn--sm"
+                >
+                  Next
+                </Link>
+              ) : (
+                <span />
+              )}
+            </nav>
+          )}
+        </div>
       </main>
-    </div>
+
+      <SiteFooter />
+    </>
   );
 }

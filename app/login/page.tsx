@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BrandMark } from "@/components/brand-mark";
 import { safeNextPath } from "@/lib/auth/safe-redirect";
 import { LoginForm } from "./login-form";
 
@@ -10,12 +11,18 @@ export default async function LoginPage({
   const { next } = await searchParams;
 
   return (
-    <main className="mx-auto flex max-w-sm flex-col gap-6 p-8">
-      <h1 className="text-xl font-semibold">Sign in to Learnivia</h1>
-      <LoginForm next={safeNextPath(next)} />
-      <p>
-        No account? <Link href="/signup">Create one</Link>
-      </p>
+    <main className="auth">
+      <BrandMark />
+      <div className="auth__card">
+        <h1>Welcome back</h1>
+        <p className="auth__lede">
+          Sign in to book a session or manage your tutoring.
+        </p>
+        <LoginForm next={safeNextPath(next)} />
+        <p className="auth__foot">
+          No account yet? <Link href="/signup">Create one</Link>
+        </p>
+      </div>
     </main>
   );
 }

@@ -1,9 +1,6 @@
 "use client";
 
 import { useActionState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { signUp, signInWithGoogle, type AuthState } from "@/lib/auth/actions";
 
 const initialState: AuthState = {};
@@ -12,16 +9,16 @@ export function SignupForm() {
   const [state, formAction, pending] = useActionState(signUp, initialState);
 
   return (
-    <div className="flex flex-col gap-3">
+    <div>
       {state.message ? (
-        <p role="status" className="text-sm text-muted-foreground">
+        <p role="status" className="alert alert--ok">
           {state.message}
         </p>
       ) : (
-        <form action={formAction} className="flex flex-col gap-4">
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
+        <form action={formAction} className="form">
+          <div className="field">
+            <label htmlFor="email">Email</label>
+            <input
               id="email"
               name="email"
               type="email"
@@ -33,19 +30,15 @@ export function SignupForm() {
               }
             />
             {state.fieldErrors?.email && (
-              <p
-                id="email-error"
-                role="alert"
-                className="text-sm text-destructive"
-              >
+              <p id="email-error" role="alert" className="field__error">
                 {state.fieldErrors.email}
               </p>
             )}
           </div>
 
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
+          <div className="field">
+            <label htmlFor="password">Password</label>
+            <input
               id="password"
               name="password"
               type="password"
@@ -54,37 +47,45 @@ export function SignupForm() {
               minLength={8}
               aria-invalid={state.fieldErrors?.password ? true : undefined}
               aria-describedby={
-                state.fieldErrors?.password ? "password-error" : undefined
+                state.fieldErrors?.password
+                  ? "password-error"
+                  : "password-hint"
               }
             />
-            {state.fieldErrors?.password && (
-              <p
-                id="password-error"
-                role="alert"
-                className="text-sm text-destructive"
-              >
+            {state.fieldErrors?.password ? (
+              <p id="password-error" role="alert" className="field__error">
                 {state.fieldErrors.password}
+              </p>
+            ) : (
+              <p id="password-hint" className="field__hint">
+                At least 8 characters.
               </p>
             )}
           </div>
 
           {state.error && (
-            <p role="alert" className="text-sm text-destructive">
+            <p role="alert" className="alert alert--error">
               {state.error}
             </p>
           )}
 
-          <Button type="submit" disabled={pending}>
+          <button
+            type="submit"
+            className="btn btn--primary btn--block"
+            disabled={pending}
+          >
             {pending ? "Creating account…" : "Create account"}
-          </Button>
+          </button>
         </form>
       )}
 
+      <p className="auth__divider">or</p>
+
       <form action={signInWithGoogle}>
         <input type="hidden" name="next" value="/onboarding" />
-        <Button type="submit" variant="outline" className="w-full">
+        <button type="submit" className="btn btn--quiet btn--block">
           Continue with Google
-        </Button>
+        </button>
       </form>
     </div>
   );

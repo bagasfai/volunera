@@ -58,9 +58,11 @@ function groupByLocalDate(
 export function TutorAvailabilityPreview({
   slots,
   variant,
+  maxDays = 5,
 }: {
   slots: { slotStart: string; slotEnd: string }[];
   variant: "compact" | "full";
+  maxDays?: number;
 }) {
   const timezone = useSyncExternalStore(
     subscribeToNothing,
@@ -69,20 +71,16 @@ export function TutorAvailabilityPreview({
   );
 
   if (!timezone) {
-    return (
-      <p className="text-sm text-muted-foreground">Loading availability…</p>
-    );
+    return <p className="field__hint">Loading availability…</p>;
   }
 
   if (slots.length === 0) {
-    return (
-      <p className="text-sm text-muted-foreground">No upcoming availability</p>
-    );
+    return <p className="field__hint">No upcoming availability</p>;
   }
 
   if (variant === "compact") {
     return (
-      <ul className="flex flex-col gap-0.5 text-sm text-muted-foreground">
+      <ul className="slot-list">
         {slots.slice(0, 3).map((slot) => (
           <li key={slot.slotStart}>{formatSlot(slot.slotStart, timezone)}</li>
         ))}
@@ -91,12 +89,15 @@ export function TutorAvailabilityPreview({
   }
 
   const groups = groupByLocalDate(slots, timezone);
+  const shown = Array.from(groups.entries()).slice(0, maxDays);
+  const hidden = groups.size - shown.length;
+
   return (
-    <div className="flex flex-col gap-3">
-      {Array.from(groups.entries()).map(([date, entries]) => (
-        <div key={date} className="flex flex-col gap-1">
-          <span className="text-sm font-medium">{date}</span>
-          <ul className="flex flex-col gap-0.5 text-sm text-muted-foreground">
+    <div className="grid-auto" style={{ gap: "var(--space-sm)" }}>
+      {shown.map(([date, entries]) => (
+        <div key={date} className="day-group">
+          <span className="day-group__label">{date}</span>
+          <ul className="slot-list">
             {entries.map((entry) => (
               <li key={entry.start}>
                 {entry.start} – {entry.end}
@@ -105,6 +106,11 @@ export function TutorAvailabilityPreview({
           </ul>
         </div>
       ))}
+      {hidden > 0 && (
+        <p className="field__hint" style={{ margin: 0 }}>
+          + {hidden} more day{hidden === 1 ? "" : "s"} available when you book.
+        </p>
+      )}
     </div>
   );
 }

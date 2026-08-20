@@ -6,10 +6,7 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { ArrowLeft, CalendarCheck, ExternalLink } from "lucide-react";
 import {
   createBooking,
   type BookingActionState,
@@ -27,6 +24,12 @@ const TOPIC_CATEGORIES: { value: string; label: string }[] = [
   { value: "organization_curriculum", label: "Organization curriculum" },
   { value: "other", label: "Other" },
 ];
+
+const STEPS = [
+  { key: "slot", label: "Time" },
+  { key: "questions", label: "Details" },
+  { key: "confirm", label: "Confirm" },
+] as const;
 
 export type TutorForBooking = {
   id: string;
@@ -65,9 +68,37 @@ function formatLocalDateTime(iso: string, timezone: string) {
   }).format(new Date(iso));
 }
 
+function formatDayLabel(iso: string, timezone: string) {
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: timezone,
+    weekday: "long",
+    month: "short",
+    day: "numeric",
+  }).format(new Date(iso));
+}
+
+function formatTimeLabel(iso: string, timezone: string) {
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: timezone,
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(new Date(iso));
+}
+
 function labelFor(ids: string[] | null, labels: string[] | null, id: string) {
   const index = (ids ?? []).indexOf(id);
   return index === -1 ? "" : (labels ?? [])[index];
+}
+
+function groupStartsByDay(starts: string[], timezone: string) {
+  const groups = new Map<string, string[]>();
+  for (const start of starts) {
+    const label = formatDayLabel(start, timezone);
+    const existing = groups.get(label) ?? [];
+    existing.push(start);
+    groups.set(label, existing);
+  }
+  return groups;
 }
 
 export function TutorBookingFlow({
@@ -109,24 +140,34 @@ export function TutorBookingFlow({
   }, [state]);
 
   if (!timezone) {
-    return <p className="text-sm text-muted-foreground">Loading booking…</p>;
+    return <p className="field__hint">Loading booking…</p>;
   }
 
   if (state.booking) {
     const booking = state.booking;
     return (
-      <div className="flex flex-col gap-3 rounded-lg border p-4">
-        <h3 className="text-lg font-medium">Booking confirmed</h3>
-        <dl className="flex flex-col gap-1 text-sm">
+      <div className="stack">
+        <div className="alert alert--ok">
+          <strong
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.4rem",
+            }}
+          >
+            <CalendarCheck size={18} aria-hidden="true" /> Booking confirmed
+          </strong>
+        </div>
+        <dl className="summary-list">
           <div>
-            <dt className="inline font-medium">Tutor: </dt>
-            <dd className="inline">
+            <dt>Tutor</dt>
+            <dd>
               {tutor.first_name} {tutor.last_initial}.
             </dd>
           </div>
           <div>
-            <dt className="inline font-medium">Subject: </dt>
-            <dd className="inline">
+            <dt>Subject</dt>
+            <dd>
               {labelFor(
                 tutor.subject_ids,
                 tutor.subject_labels,
@@ -135,8 +176,8 @@ export function TutorBookingFlow({
             </dd>
           </div>
           <div>
-            <dt className="inline font-medium">Grade: </dt>
-            <dd className="inline">
+            <dt>Grade</dt>
+            <dd>
               {labelFor(
                 tutor.grade_level_ids,
                 tutor.grade_level_labels,
@@ -145,142 +186,199 @@ export function TutorBookingFlow({
             </dd>
           </div>
           <div>
-            <dt className="inline font-medium">Time: </dt>
-            <dd className="inline">
-              {formatLocalDateTime(booking.start_time, timezone)}
-            </dd>
+            <dt>Time</dt>
+            <dd>{formatLocalDateTime(booking.start_time, timezone)}</dd>
           </div>
           <div>
-            <dt className="inline font-medium">Topic: </dt>
-            <dd className="inline">{booking.topic}</dd>
+            <dt>Topic</dt>
+            <dd>{booking.topic}</dd>
           </div>
         </dl>
-        <p className="text-sm text-muted-foreground">
-          Your tutor will see this booking on their dashboard. Meeting details
-          will follow separately.
-        </p>
+        {booking.meet_link ? (
+          <p style={{ margin: 0 }}>
+            <a
+              href={booking.meet_link}
+              className="link"
+              target="_blank"
+              rel="noreferrer"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.35rem",
+              }}
+            >
+              Open your Google Meet link{" "}
+              <ExternalLink size={15} aria-hidden="true" />
+            </a>
+          </p>
+        ) : (
+          <p className="field__hint">
+            Your tutor sees this booking on their dashboard. Meeting details
+            follow by email.
+          </p>
+        )}
       </div>
     );
   }
 
   const errorBanner = (state.error || state.fieldErrors) && (
-    <p className="text-sm text-destructive">
+    <p role="alert" className="alert alert--error">
       {state.error ??
-        "Something in your booking wasn't valid — please start over."}
+        "Something in your booking wasn't valid, please start over."}
     </p>
   );
 
   if (availableStarts.length === 0 && step === "slot") {
     return (
-      <div className="flex flex-col gap-4">
+      <div className="stack">
         {errorBanner}
-        <p className="text-sm text-muted-foreground">
-          No upcoming availability
+        <p className="field__hint">
+          No upcoming availability. Check back soon, or browse another tutor.
         </p>
       </div>
     );
   }
 
+  const stepIndex = STEPS.findIndex((s) => s.key === step);
+  const dayGroups = groupStartsByDay(availableStarts, timezone);
+
   return (
-    <div className="flex flex-col gap-4">
+    <div className="stack" style={{ gap: "var(--space-lg)" }}>
+      <ol
+        className="tutor-card__tags"
+        aria-label="Booking steps"
+        style={{ gap: "var(--space-xs)" }}
+      >
+        {STEPS.map((s, i) => (
+          <li
+            key={s.key}
+            className={`status-pill${i === stepIndex ? " status-pill--ok" : ""}`}
+            aria-current={i === stepIndex ? "step" : undefined}
+          >
+            {i + 1}. {s.label}
+          </li>
+        ))}
+      </ol>
+
       {errorBanner}
 
       {step === "slot" && (
-        <div className="flex flex-col gap-2">
-          <h3 className="text-base font-medium">Pick a time</h3>
-          <div className="flex flex-wrap gap-2">
-            {availableStarts.map((start) => (
-              <Button
-                key={start}
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setSelectedStart(start);
-                  setStep("questions");
-                }}
-              >
-                {formatLocalDateTime(start, timezone)}
-              </Button>
-            ))}
-          </div>
+        <div className="stack">
+          <h3 style={{ fontSize: "var(--text-md)" }}>Pick a time</h3>
+          {Array.from(dayGroups.entries()).map(([day, starts]) => (
+            <div key={day} className="day-group">
+              <span className="day-group__label">{day}</span>
+              <ul className="booking__slots">
+                {starts.map((start) => (
+                  <li key={start}>
+                    <button
+                      type="button"
+                      className="slot-btn"
+                      aria-pressed={selectedStart === start}
+                      onClick={() => {
+                        setSelectedStart(start);
+                        setStep("questions");
+                      }}
+                    >
+                      {formatTimeLabel(start, timezone)}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
       )}
 
       {step === "questions" && selectedStart && (
-        <div className="flex flex-col gap-4">
-          <Button
+        <div className="stack" style={{ gap: "var(--space-lg)" }}>
+          <button
             type="button"
-            variant="ghost"
-            size="sm"
+            className="btn btn--text btn--sm"
+            style={{ alignSelf: "flex-start", paddingInline: 0 }}
             onClick={() => setStep("slot")}
           >
-            Back
-          </Button>
+            <ArrowLeft size={16} aria-hidden="true" /> Change time
+          </button>
 
-          <fieldset className="flex flex-col gap-2">
-            <legend className="text-sm font-medium">Subject</legend>
-            <RadioGroup
-              value={subjectId}
-              onValueChange={(value) => setSubjectId(String(value))}
-            >
+          <p className="field__hint" style={{ margin: 0 }}>
+            {formatLocalDateTime(selectedStart, timezone)}
+          </p>
+
+          <fieldset className="fieldset">
+            <legend className="fieldset__legend">Subject</legend>
+            <div className="choice-grid choice-grid--2">
               {(tutor.subject_ids ?? []).map((id, index) => (
-                <Label key={id} className="flex items-center gap-2 font-normal">
-                  <RadioGroupItem value={id} />
+                <label key={id} className="choice">
+                  <input
+                    type="radio"
+                    name="booking-subject"
+                    value={id}
+                    checked={subjectId === id}
+                    onChange={() => setSubjectId(id)}
+                  />
                   <span>{(tutor.subject_labels ?? [])[index]}</span>
-                </Label>
+                </label>
               ))}
-            </RadioGroup>
+            </div>
           </fieldset>
 
-          <fieldset className="flex flex-col gap-2">
-            <legend className="text-sm font-medium">Student grade</legend>
-            <RadioGroup
-              value={gradeLevelId}
-              onValueChange={(value) => setGradeLevelId(String(value))}
-            >
+          <fieldset className="fieldset">
+            <legend className="fieldset__legend">Student grade</legend>
+            <div className="choice-grid choice-grid--2">
               {(tutor.grade_level_ids ?? []).map((id, index) => (
-                <Label key={id} className="flex items-center gap-2 font-normal">
-                  <RadioGroupItem value={id} />
+                <label key={id} className="choice">
+                  <input
+                    type="radio"
+                    name="booking-grade"
+                    value={id}
+                    checked={gradeLevelId === id}
+                    onChange={() => setGradeLevelId(id)}
+                  />
                   <span>{(tutor.grade_level_labels ?? [])[index]}</span>
-                </Label>
+                </label>
               ))}
-            </RadioGroup>
+            </div>
           </fieldset>
 
-          <fieldset className="flex flex-col gap-2">
-            <legend className="text-sm font-medium">
+          <fieldset className="fieldset">
+            <legend className="fieldset__legend">
               What do you need help with?
             </legend>
-            <RadioGroup
-              value={topicCategory}
-              onValueChange={(value) => setTopicCategory(String(value))}
-            >
+            <div className="choice-grid choice-grid--2">
               {TOPIC_CATEGORIES.map((option) => (
-                <Label
-                  key={option.value}
-                  className="flex items-center gap-2 font-normal"
-                >
-                  <RadioGroupItem value={option.value} />
+                <label key={option.value} className="choice">
+                  <input
+                    type="radio"
+                    name="booking-topic-category"
+                    value={option.value}
+                    checked={topicCategory === option.value}
+                    onChange={() => setTopicCategory(option.value)}
+                  />
                   <span>{option.label}</span>
-                </Label>
+                </label>
               ))}
-            </RadioGroup>
+            </div>
           </fieldset>
 
-          <div className="flex flex-col gap-1">
-            <Label htmlFor="topic">Topic</Label>
-            <Input
+          <div className="field">
+            <label htmlFor="topic">Topic</label>
+            <input
               id="topic"
+              type="text"
               value={topic}
               onChange={(event) => setTopic(event.target.value)}
               placeholder="e.g. Fractions"
               maxLength={200}
             />
+            <p className="field__hint">
+              One line is enough, it helps your tutor prepare.
+            </p>
           </div>
 
-          <Button
+          <button
             type="button"
+            className="btn btn--primary"
             disabled={
               !subjectId ||
               !gradeLevelId ||
@@ -290,12 +388,12 @@ export function TutorBookingFlow({
             onClick={() => setStep("confirm")}
           >
             Continue
-          </Button>
+          </button>
         </div>
       )}
 
       {step === "confirm" && selectedStart && (
-        <form action={formAction} className="flex flex-col gap-4">
+        <form action={formAction} className="stack">
           <input type="hidden" name="tutorId" value={tutor.id} />
           <input type="hidden" name="startTime" value={selectedStart} />
           <input type="hidden" name="subjectId" value={subjectId} />
@@ -303,31 +401,31 @@ export function TutorBookingFlow({
           <input type="hidden" name="topicCategory" value={topicCategory} />
           <input type="hidden" name="topic" value={topic} />
 
-          <Button
+          <button
             type="button"
-            variant="ghost"
-            size="sm"
+            className="btn btn--text btn--sm"
+            style={{ alignSelf: "flex-start", paddingInline: 0 }}
             onClick={() => setStep("questions")}
           >
-            Back
-          </Button>
+            <ArrowLeft size={16} aria-hidden="true" /> Edit details
+          </button>
 
-          <dl className="flex flex-col gap-1 text-sm">
+          <dl className="summary-list">
             <div>
-              <dt className="inline font-medium">Tutor: </dt>
-              <dd className="inline">
+              <dt>Tutor</dt>
+              <dd>
                 {tutor.first_name} {tutor.last_initial}.
               </dd>
             </div>
             <div>
-              <dt className="inline font-medium">Subject: </dt>
-              <dd className="inline">
+              <dt>Subject</dt>
+              <dd>
                 {labelFor(tutor.subject_ids, tutor.subject_labels, subjectId)}
               </dd>
             </div>
             <div>
-              <dt className="inline font-medium">Grade: </dt>
-              <dd className="inline">
+              <dt>Grade</dt>
+              <dd>
                 {labelFor(
                   tutor.grade_level_ids,
                   tutor.grade_level_labels,
@@ -336,20 +434,18 @@ export function TutorBookingFlow({
               </dd>
             </div>
             <div>
-              <dt className="inline font-medium">Time: </dt>
-              <dd className="inline">
-                {formatLocalDateTime(selectedStart, timezone)}
-              </dd>
+              <dt>Time</dt>
+              <dd>{formatLocalDateTime(selectedStart, timezone)}</dd>
             </div>
             <div>
-              <dt className="inline font-medium">Topic: </dt>
-              <dd className="inline">{topic}</dd>
+              <dt>Topic</dt>
+              <dd>{topic}</dd>
             </div>
           </dl>
 
-          <Button type="submit" disabled={pending}>
-            Confirm Booking
-          </Button>
+          <button type="submit" className="btn btn--primary" disabled={pending}>
+            {pending ? "Booking…" : "Confirm booking"}
+          </button>
         </form>
       )}
     </div>
