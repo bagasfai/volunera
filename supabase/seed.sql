@@ -1,17 +1,7 @@
--- supabase/seed.sql
---
--- LOCAL DEVELOPMENT ONLY. Applied by `supabase db reset`; never by
--- `supabase db push`. Contains the pgTAP harness and test fixtures.
--- This is NOT the product seed data for grade_levels/subjects, which is
--- deferred to Phase 2 per the spec.
-
 create extension if not exists pgtap with schema extensions;
 
 create schema if not exists tests;
 
--- Impersonate a user for the remainder of the current transaction or
--- savepoint. Both settings are transaction-local, so `rollback to
--- savepoint` restores the previous identity.
 create or replace function tests.authenticate_as(p_user_id uuid)
 returns void
 language plpgsql
@@ -77,8 +67,6 @@ from (values
   ('77777777-7777-7777-7777-777777777777'::uuid, 'fresh@test.local', null)
 ) as u(id, email, avatar);
 
--- Fresh (7777…) deliberately has no profile row: the onboarding RPC tests
--- need an authenticated user who has not onboarded.
 insert into public.profiles (id, role, first_name, last_name, email, timezone, status)
 values
   ('11111111-1111-1111-1111-111111111111', 'student', 'Ada',  'A', 'student.a@test.local',  'America/Chicago', 'active'),

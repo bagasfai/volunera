@@ -2,7 +2,6 @@ create schema if not exists private;
 revoke all on schema private from public;
 grant usage on schema private to authenticated;
 
--- Bumps updated_at on every row update.
 create or replace function public.set_updated_at()
 returns trigger
 language plpgsql

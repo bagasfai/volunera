@@ -84,7 +84,6 @@ create policy tutor_photos_select_admin
   to authenticated
   using (bucket_id = 'tutor-photos' and private.is_admin());
 
--- The one non-owner path: public once the owning tutor is approved.
 create policy tutor_photos_select_public_when_approved
   on storage.objects
   for select
