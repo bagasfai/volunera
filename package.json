@@ -9,6 +9,7 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:functions": "deno test --config supabase/functions/booking-calendar-event/deno.json supabase/functions/booking-calendar-event/calendar-event.test.ts && deno test --config supabase/functions/booking-notification-email/deno.json supabase/functions/booking-notification-email/notification-email.test.ts",
     "db:start": "supabase start",
     "db:stop": "supabase stop",
     "db:reset": "supabase db reset",
