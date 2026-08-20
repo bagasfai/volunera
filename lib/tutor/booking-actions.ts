@@ -1,8 +1,8 @@
-// lib/tutor/booking-actions.ts
 "use server";
 
 import { revalidatePath } from "next/cache";
 import { getUserId } from "@/lib/auth/dal";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { firstFieldErrors } from "@/lib/validation/auth";
 import { bookingRequestSchema } from "@/lib/validation/booking";
@@ -61,5 +61,48 @@ export async function createBooking(
   }
 
   revalidatePath(`/tutors/${parsed.data.tutorId}`);
-  return { booking: data ?? undefined };
+
+  if (!data) {
+    return { booking: undefined };
+  }
+
+  const admin = createAdminClient();
+
+  let calendar: { calendarEventId?: string; meetLink?: string } | null = null;
+  try {
+    const { data: calendarResult } = await admin.functions.invoke(
+      "booking-calendar-event",
+      {
+        body: { action: "create", bookingId: data.id },
+        timeout: 8000,
+      },
+    );
+    calendar = calendarResult as {
+      calendarEventId?: string;
+      meetLink?: string;
+    } | null;
+  } catch {}
+
+  try {
+    const { error: notifyError } = await admin.functions.invoke(
+      "booking-notification-email",
+      {
+        body: { action: "confirm", bookingId: data.id },
+        timeout: 8000,
+      },
+    );
+    if (notifyError) {
+      console.error("booking-notification-email invoke failed", notifyError);
+    }
+  } catch {}
+
+  return {
+    booking: calendar
+      ? {
+          ...data,
+          calendar_event_id: calendar.calendarEventId ?? data.calendar_event_id,
+          meet_link: calendar.meetLink ?? data.meet_link,
+        }
+      : data,
+  };
 }
