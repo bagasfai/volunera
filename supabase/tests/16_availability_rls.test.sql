@@ -225,11 +225,11 @@ select throws_ok(
   'a tutor cannot insert a booking directly -- migration 21 does grant INSERT to authenticated now, but bookings_insert_own rejects this: the tutor does not match student_id (and wouldn''t satisfy the policy''s other conditions either)'
 );
 select throws_ok(
-  $$update public.bookings set status = 'canceled'
+  $$update public.bookings set topic = 'rewritten'
     where tutor_id = '44444444-4444-4444-4444-444444444444'$$,
   '42501',
   null,
-  'a tutor cannot update a booking directly -- no grant exists this phase'
+  'a tutor has no update grant on any column but status -- migration 26 opens status for the cancellation path (see 23_booking_cancellation.test.sql), but nothing else'
 );
 select throws_ok(
   $$delete from public.bookings
