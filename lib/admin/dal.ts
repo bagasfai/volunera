@@ -61,3 +61,36 @@ export async function getApplicationDetail(
       .filter((label): label is string => Boolean(label)),
   };
 }
+
+export type AdminCounts = {
+  pendingApplications: number;
+  upcomingBookings: number;
+  suspendedAccounts: number;
+};
+
+export async function getAdminCounts(): Promise<AdminCounts> {
+  const supabase = await createClient();
+
+  const [pending, upcoming, suspended] = await Promise.all([
+    supabase
+      .from("tutor_profiles")
+      .select("profile_id", { count: "exact", head: true })
+      .eq("application_status", "pending")
+      .not("application_submitted_at", "is", null),
+    supabase
+      .from("bookings")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "confirmed")
+      .gt("start_time", new Date().toISOString()),
+    supabase
+      .from("profiles")
+      .select("id", { count: "exact", head: true })
+      .neq("status", "active"),
+  ]);
+
+  return {
+    pendingApplications: pending.count ?? 0,
+    upcomingBookings: upcoming.count ?? 0,
+    suspendedAccounts: suspended.count ?? 0,
+  };
+}

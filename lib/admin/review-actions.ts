@@ -1,4 +1,3 @@
-// lib/admin/review-actions.ts
 "use server";
 
 import { revalidatePath } from "next/cache";
@@ -26,7 +25,7 @@ async function setApplicationStatus(
     return { error: "Could not update this application. Try again." };
   }
 
-  revalidatePath("/dashboard/tutors");
+  revalidatePath("/dashboard/admin/applications");
   return {};
 }
 
